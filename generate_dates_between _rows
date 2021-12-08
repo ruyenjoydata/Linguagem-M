@@ -1,0 +1,16 @@
+//Generate dates between Rows
+//Created by Ruy Lacerda
+//Updated #date(2021,12,08) :)
+
+let
+    id = [ID], 
+    anterior = Date.AddDays([dataHoraCotacao],-1),
+    anterior_serie = Date.From(
+        if (id-1)>=0 then 
+            Date.AddDays(ID[dataHoraCotacao]{id-1},1) //ID is a previous step
+        else [dataHoraCotacao])      
+in
+        {
+        Number.From(anterior_serie)..
+        Number.From([dataHoraCotacao])
+        }
