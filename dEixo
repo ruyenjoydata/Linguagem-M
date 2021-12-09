@@ -1,0 +1,39 @@
+//Função para gerar a tabela dEixo 
+//Created by Ruy Lacerda
+//Updated #date(2021,12,08) :)
+
+(startdate as date, enddate as date)=>
+
+let
+  qtddias = Duration.Days(enddate-startdate)+1,
+  step = #duration(1, 0, 0, 0),
+  Personalizar = List.Dates(DataInicio, qtddias, step),
+  #"Convertido em tabela" = Table.FromList(Personalizar, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+  #"Tipo de coluna alterado" = Table.TransformColumnTypes(#"Convertido em tabela", {{"Column1", type date}}),
+  #"Colunas renomeadas" = Table.RenameColumns(#"Tipo de coluna alterado", {{"Column1", "Data"}}),
+  #"Ano inserido" = Table.AddColumn(#"Colunas renomeadas", "Ano", each Date.Year([Data]), type nullable number),
+  #"Trimestre inserido" = Table.AddColumn(#"Ano inserido", "Trimestre", each Text.From(Date.QuarterOfYear([Data]))&"T "&Text.End(Text.From([Ano]),2), type nullable number),
+  #"Nome do mês inserido" = Table.AddColumn(#"Trimestre inserido", "Mês", each Text.Proper(Text.Start(Date.MonthName([Data]),3))&" "&Text.End(Text.From([Ano]),2), type nullable text),
+  #"Outras colunas não dinâmicas" = Table.UnpivotOtherColumns(#"Nome do mês inserido", {"Data"}, "Visão", "Eixo"),
+  #"Personalização adicionada 1" = Table.AddColumn(#"Outras colunas não dinâmicas", "ID_Visao", each if [Visão] = "Ano" then 0 else if [Visão] = "Mês" then 2 else if [Visão] = "Trimestre" then 1 else null),
+  #"Tipo de coluna alterado 1" = Table.TransformColumnTypes(#"Personalização adicionada 1", {{"Eixo", type text}, {"ID_Visao", Int64.Type}}),
+  #"Personalização adicionada" = Table.AddColumn(#"Tipo de coluna alterado 1", "Eixo num", each let
+    ano = Text.From(Date.Year([Data])),
+    mes = Text.PadStart(Text.From(Date.Month([Data])),2,"0"),
+    trimestre = Text.From(Date.QuarterOfYear([Data])),
+    resultado =
+    if [Visão]="Ano" then
+    ano
+    else
+    if [Visão] = "Mês" then
+    ano&mes
+    else
+    if [Visão] = "Trimestre" then
+    ano&trimestre
+    else
+    null
+in
+    resultado),
+  #"Tipo de coluna alterado 2" = Table.TransformColumnTypes(#"Personalização adicionada", {{"Eixo num", Int64.Type}})
+in
+  #"Tipo de coluna alterado 2"
