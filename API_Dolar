@@ -1,0 +1,14 @@
+//Created by Ruy Lacerda
+//Updated #date(09/12/2021)
+
+(datainicio as text, datafim as text)=>
+
+let
+    BinarioPeriodo = 
+        Web.Contents(
+            "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/",
+            [RelativePath = "CotacaoDolarPeriodo(dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)?@dataInicial='"&datainicio&"'&@dataFinalCotacao='"&datafim&"'&$top=10000&$format=json&$select=cotacaoCompra,cotacaoVenda,dataHoraCotacao"]
+            ),
+    Json = Json.Document(BinarioPeriodo)
+in 
+Json
