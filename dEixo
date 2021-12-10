@@ -15,23 +15,24 @@ let
   #"Outras colunas não dinâmicas" = Table.UnpivotOtherColumns(#"Nome do mês inserido", {"Data"}, "Visão", "Eixo"),
   #"Personalização adicionada 1" = Table.AddColumn(#"Outras colunas não dinâmicas", "ID_Visao", each if [Visão] = "Ano" then 0 else if [Visão] = "Mês" then 2 else if [Visão] = "Trimestre" then 1 else null),
   #"Tipo de coluna alterado 1" = Table.TransformColumnTypes(#"Personalização adicionada 1", {{"Eixo", type text}, {"ID_Visao", Int64.Type}}),
-  Eixo = Table.AddColumn(#"Tipo de coluna alterado 1", "Eixo num", each let
-    ano = Text.From(Date.Year([Data])),
-    mes = Text.PadStart(Text.From(Date.Month([Data])),2,"0"),
-    trimestre = Text.From(Date.QuarterOfYear([Data])),
-    resultado =
-    if [Visão]="Ano" then
-    ano
-    else
-    if [Visão] = "Mês" then
-    ano&mes
-    else
-    if [Visão] = "Trimestre" then
-    ano&trimestre
-    else
-    null
-in
-    resultado),
+  Eixo = Table.AddColumn(#"Tipo de coluna alterado 1", "Eixo num", each 
+      let
+          ano = Text.From(Date.Year([Data])),
+          mes = Text.PadStart(Text.From(Date.Month([Data])),2,"0"),
+          trimestre = Text.From(Date.QuarterOfYear([Data])),
+          resultado =
+          if [Visão]="Ano" then
+          ano
+          else
+          if [Visão] = "Mês" then
+          ano&mes
+          else
+          if [Visão] = "Trimestre" then
+          ano&trimestre
+          else
+          null
+       in
+         resultado),
     #"Ano Inserido" = Table.AddColumn(Eixo, "Ano", each Date.Year([Data]), Int64.Type),
     TipoAlterado= Table.TransformColumnTypes(#"Ano Inserido", {{"Eixo num", Int64.Type}})
 in
