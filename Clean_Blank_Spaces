@@ -1,0 +1,15 @@
+//created by @ruypower
+
+(texto as text)=>
+let
+
+    fxList = 
+    List.Generate(
+        ()=>texto,
+        each Text.Length(_) <> Text.Length(Text.Replace(_,"  ", " ")),
+        each Text.Replace(_, "  "," "),
+        each _
+    ),
+    LastItem = List.Last(fxList,texto)
+in 
+LastItem
