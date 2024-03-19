@@ -1,6 +1,7 @@
 //Created by Ruy Lacerda
 //Updated #date(19/03/2024)
 //O formato de datinicio e datafim de ser (MM-DD-YYYY)
+//Link para documentacao completa da API: https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/documentacao
 
 (datainicio as text, datafim as text)=>
 
