@@ -1,5 +1,6 @@
 //Created by Ruy Lacerda
-//Updated #date(09/12/2021)
+//Updated #date(19/03/2024)
+//O formato de datinicio e datafim de ser (MM-DD-YYYY)
 
 (datainicio as text, datafim as text)=>
 
