@@ -1,0 +1,32 @@
+--temporal table with automatic update
+ --created by Ruy Lacerda @ruylacerdaoficial
+  --update #date(2024-03-20)
+  let
+inicio = Number.From(data_inicio)
+,hoje = DateTime.Date(DateTime.LocalNow())
+,ano_hoje = Date.Year(hoje)
+,dt_fim = #date(ano_hoje,12,31)
+,fim = Number.From(dt_fim)
+,lista = {inicio..fim},
+    #"Converted to Table" = Table.FromList(lista, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+    #"Duplicated Column" = Table.DuplicateColumn(#"Converted to Table", "Column1", "Data"),
+    #"Renamed Columns" = Table.RenameColumns(#"Duplicated Column",{{"Column1", "ID_Data"}}),
+    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns",{{"ID_Data", Int64.Type}, {"Data", type date}}),
+    #"Inserted Year" = Table.AddColumn(#"Changed Type", "Ano", each Date.Year([Data]), Int64.Type),
+    #"Inserted Month" = Table.AddColumn(#"Inserted Year", "Mes_Num", each Date.Month([Data]), Int64.Type),
+    #"Inserted Month Name" = Table.AddColumn(#"Inserted Month", "Mês", each Date.MonthName([Data]), type text),
+    #"Inserted Quarter" = Table.AddColumn(#"Inserted Month Name", "Trim", each Date.QuarterOfYear([Data]), Int64.Type),
+    #"Inserted Week of Year" = Table.AddColumn(#"Inserted Quarter", "Semana do Ano", each Date.WeekOfYear([Data]), Int64.Type),
+    #"Inserted Week of Month" = Table.AddColumn(#"Inserted Week of Year", "Semana do Mês", each Date.WeekOfMonth([Data]), Int64.Type),
+    #"Inserted Day" = Table.AddColumn(#"Inserted Week of Month", "Dia", each Date.Day([Data]), Int64.Type),
+    #"Inserted Day of Week" = Table.AddColumn(#"Inserted Day", "Dia_Semana_Num", each Date.DayOfWeek([Data]), Int64.Type),
+    #"Inserted Day Name" = Table.AddColumn(#"Inserted Day of Week", "Dia da Semana", each Date.DayOfWeekName([Data]), type text),
+    #"Added Custom1" = Table.AddColumn(#"Inserted Day Name", "Trim_Ano_Num", each [Ano]*10+[Trim], Int32.Type
+),
+    #"Added Custom" = Table.AddColumn(#"Added Custom1", "Ano_Mes_Num", each [Ano]*100+[Mes_Num], Int32.Type),
+    #"Extracted First Characters" = Table.TransformColumns(#"Added Custom", {{"Mês", each Text.Start(_, 3), type text}}),
+    #"Capitalized Each Word" = Table.TransformColumns(#"Extracted First Characters",{{"Mês", Text.Proper, type text}}),
+    #"Inserted Merged Column" = Table.AddColumn(#"Capitalized Each Word", "Mês-Ano", each Text.Combine({[Mês], Text.End(Text.From([Ano], "pt-BR"),2)}, "-"), type text),
+    #"Inserted Merged Column1" = Table.AddColumn(#"Inserted Merged Column", "Trim-Ano", each Text.Combine({Text.From([Trim], "pt-BR"), Text.End(Text.From([Ano], "pt-BR"),2)}, "T-"), type text)
+in
+    #"Inserted Merged Column1"
